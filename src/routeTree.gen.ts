@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as HomeRouteImport } from './routes/_home'
 import { Route as HomeIndexRouteImport } from './routes/_home/index'
+import { Route as HomeReportIndexRouteImport } from './routes/_home/report/index'
+import { Route as HomeCertificateIndexRouteImport } from './routes/_home/certificate/index'
 
 const HomeRoute = HomeRouteImport.update({
   id: '/_home',
@@ -21,24 +23,45 @@ const HomeIndexRoute = HomeIndexRouteImport.update({
   path: '/',
   getParentRoute: () => HomeRoute,
 } as any)
+const HomeReportIndexRoute = HomeReportIndexRouteImport.update({
+  id: '/report/',
+  path: '/report/',
+  getParentRoute: () => HomeRoute,
+} as any)
+const HomeCertificateIndexRoute = HomeCertificateIndexRouteImport.update({
+  id: '/certificate/',
+  path: '/certificate/',
+  getParentRoute: () => HomeRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof HomeIndexRoute
+  '/certificate': typeof HomeCertificateIndexRoute
+  '/report': typeof HomeReportIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof HomeIndexRoute
+  '/certificate': typeof HomeCertificateIndexRoute
+  '/report': typeof HomeReportIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_home': typeof HomeRouteWithChildren
   '/_home/': typeof HomeIndexRoute
+  '/_home/certificate/': typeof HomeCertificateIndexRoute
+  '/_home/report/': typeof HomeReportIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/certificate' | '/report'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/_home' | '/_home/'
+  to: '/' | '/certificate' | '/report'
+  id:
+    | '__root__'
+    | '/_home'
+    | '/_home/'
+    | '/_home/certificate/'
+    | '/_home/report/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -61,15 +84,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HomeIndexRouteImport
       parentRoute: typeof HomeRoute
     }
+    '/_home/report/': {
+      id: '/_home/report/'
+      path: '/report'
+      fullPath: '/report'
+      preLoaderRoute: typeof HomeReportIndexRouteImport
+      parentRoute: typeof HomeRoute
+    }
+    '/_home/certificate/': {
+      id: '/_home/certificate/'
+      path: '/certificate'
+      fullPath: '/certificate'
+      preLoaderRoute: typeof HomeCertificateIndexRouteImport
+      parentRoute: typeof HomeRoute
+    }
   }
 }
 
 interface HomeRouteChildren {
   HomeIndexRoute: typeof HomeIndexRoute
+  HomeCertificateIndexRoute: typeof HomeCertificateIndexRoute
+  HomeReportIndexRoute: typeof HomeReportIndexRoute
 }
 
 const HomeRouteChildren: HomeRouteChildren = {
   HomeIndexRoute: HomeIndexRoute,
+  HomeCertificateIndexRoute: HomeCertificateIndexRoute,
+  HomeReportIndexRoute: HomeReportIndexRoute,
 }
 
 const HomeRouteWithChildren = HomeRoute._addFileChildren(HomeRouteChildren)

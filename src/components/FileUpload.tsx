@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { parseTab } from '@/lib/parseTab';
 import { useStore } from '@/lib/tinybase';
-import { parseTab } from '@/utils/parseTab';
 import React, { useCallback, useState } from 'react';
 
 export default function FileUpload() {
@@ -17,14 +17,29 @@ export default function FileUpload() {
       // Metadata - batch in a transaction
       store?.transaction(() => {
         for (const r of rows) {
-          const id = (r['Manuscript Number'] || r['ManuscriptNumber'] || r['manuscript number'] || r['Manuscript_Number'] || '').toString().trim();
-          if (!id) continue;
+          const manuscriptId = (r['Manuscript Number'] || r['ManuscriptNumber'] || r['manuscript number'] || r['Manuscript_Number'] || '').toString().trim();
+          if (!manuscriptId) continue;
           const author = (r['Corresponding Author First Name'] || r['Author'] || r['Corresponding Author'] || r['author'] || r['Corresponding Author First Name'] || '').toString().trim();
           const title = (r['Article Title'] || r['Title'] || '').toString().trim();
           const type = (r['Article Type'] || r['ArticleType'] || r['type'] || '').toString().trim();
           const editor = (r['Editor First Name'] || r['Editor'] || '').toString().trim();
+          const daysWithEditorRaw = (r['Days with Editor'] || '').toString().trim();
+          const daysWithEditor = parseInt(daysWithEditorRaw, 10) || 0;
+          const initialSubmissionDateRaw = (r['Initial Submission Date'] || '').toString().trim();
+          const initialSubmissionDateParsed = parsePossibleDate(initialSubmissionDateRaw);
+          const editorialStatus = (r['Editorial Status'] || '').toString().trim();
 
-          store.setRow('manuscripts', id, { author, title, type, editor: editor || 'لم يحدد بعد' });
+          store.setRow('manuscripts', manuscriptId, { 
+            manuscriptId, 
+            author, 
+            title, 
+            type, 
+            editor: editor || 'لم يحدد بعد',
+            daysWithEditor,
+            initialSubmissionDate: initialSubmissionDateParsed?.getTime() || 0,
+            initialSubmissionDateRaw,
+            editorialStatus: editorialStatus || 'غير محدد',
+          });
         }
       });
       setStatus('تم استيراد بيانات الميتاداتا (A).');

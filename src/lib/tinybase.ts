@@ -1,12 +1,22 @@
+import { fallback } from '@tanstack/zod-adapter';
 import * as UiReact from 'tinybase/ui-react/with-schemas';
+import z from 'zod';
+
+export const SearchSchema = z.object({
+  search: fallback(z.string(), '').default(''),
+})
 
 export const tablesSchema = {
   manuscripts: {
-    id: { type: 'string' },
+    manuscriptId: { type: 'string' },
     author: { type: 'string' },
     title: { type: 'string' },
     type: { type: 'string' },
     editor: { type: 'string' },
+    daysWithEditor: { type: 'number' },
+    initialSubmissionDate: { type: 'number' },
+    initialSubmissionDateRaw: { type: 'string' },
+    editorialStatus: { type: 'string' },
   },
   history: {
     manuscriptId: { type: 'string' },

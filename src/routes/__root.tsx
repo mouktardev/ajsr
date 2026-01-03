@@ -3,9 +3,7 @@ import { Button } from '@/components/ui/button';
 import { getThemeServerFn } from '@/lib/theme';
 import { TinyBaseProvider, tablesSchema, useCreateQueries, useCreateStore, valuesSchema } from '@/lib/tinybase';
 import { IconAlertTriangle } from '@tabler/icons-react';
-import { TanStackDevtools } from '@tanstack/react-devtools';
 import { HeadContent, Link, Scripts, createRootRoute } from '@tanstack/react-router';
-import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 import { Inspector } from 'tinybase/ui-react-inspector';
 import { createQueries, createStore } from 'tinybase/with-schemas';
 import appCss from '../styles.css?url';
@@ -66,7 +64,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               {children}
               <Inspector />
           </TinyBaseProvider>
-          <TanStackDevtools
+          {/* <TanStackDevtools
             config={{
               position: 'bottom-right',
             }}
@@ -76,7 +74,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                 render: <TanStackRouterDevtoolsPanel />,
               },
             ]}
-          />
+          /> */}
           <Scripts />
         </ThemeProvider>
       </body>

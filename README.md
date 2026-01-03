@@ -1,3 +1,3 @@
-# TanStack Start + shadcn/ui
+# Ajsr tools
 
-This is a template for a new TanStack Start project with React, TypeScript, and shadcn/ui.
+المجلة العربية للبحث العلمي (أجسر) - مجلة علمية محكّمة تصدر باللغة العربية عن منظمة المجتمع العلمي العربي.
