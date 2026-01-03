@@ -1,9 +1,7 @@
 import { ThemeProvider } from '@/components/theme-provider';
-import { Button } from '@/components/ui/button';
 import { getThemeServerFn } from '@/lib/theme';
 import { TinyBaseProvider, tablesSchema, useCreateQueries, useCreateStore, valuesSchema } from '@/lib/tinybase';
-import { IconAlertTriangle } from '@tabler/icons-react';
-import { HeadContent, Link, Scripts, createRootRoute } from '@tanstack/react-router';
+import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router';
 import { Inspector } from 'tinybase/ui-react-inspector';
 import { createQueries, createStore } from 'tinybase/with-schemas';
 import appCss from '../styles.css?url';
@@ -30,19 +28,6 @@ export const Route = createRootRoute({
     ],
   }),
   loader: () => getThemeServerFn(),
-  notFoundComponent() {
-    return (
-      <div className="flex min-h-dvh w-full flex-col items-center justify-center gap-3 p-5">
-        <div className="flex items-center gap-3 rounded-lg border border-destructive bg-background p-5 text-red-500">
-          <IconAlertTriangle className="size-6" />
-          <p className="leading-none">Page Not found 404</p>
-        </div>
-        <Link to="/">
-          <Button variant={'outline'}>go home</Button>
-        </Link>
-      </div>
-    );
-  },
   shellComponent: RootDocument,
 })
 
