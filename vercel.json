@@ -1,0 +1,10 @@
+{
+  "functions": {
+    "**/*.func": {
+      "includeFiles": "server-assets/**"
+    },
+    "api/**/*": {
+      "includeFiles": "server-assets/**"
+    }
+  }
+}
