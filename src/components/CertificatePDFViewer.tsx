@@ -1,10 +1,10 @@
 import { Button } from '@/components/ui/button';
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
 } from '@/components/ui/dialog';
 import { generateCertificate } from '@/server/generateCertificate.server';
 import { IconDownload, IconEye, IconLoader2 } from '@tabler/icons-react';
@@ -41,8 +41,7 @@ export function CertificatePDFViewer({
           alert('فشل إنشاء الشهادة');
         }
       } catch (err) {
-        console.error('Error generating certificate:', err);
-        alert('فشل إنشاء الشهادة');
+        console.log('Error generating certificate:', err);
       }
     });
   };
@@ -89,8 +88,7 @@ export function CertificatePDFViewer({
             }, 100);
           }
         } catch (err) {
-          console.error('Error downloading certificate:', err);
-          alert('فشل تحميل الشهادة');
+          console.log('Error downloading certificate:', err);
         }
       });
     } else {
