@@ -38,7 +38,7 @@ export function CertificatePDFViewer({
         if (result && result.success && result.pdfDataUri) {
           setPdfDataUri(result.pdfDataUri);
         } else {
-          alert('فشل إنشاء الشهادة');
+          console.log(result.error)
         }
       } catch (err) {
         console.log('Error generating certificate:', err);
