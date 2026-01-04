@@ -1,11 +1,11 @@
-import cairoFontPath from '@/assets/fonts/Cairo-Regular.ttf'
 import { createServerFn } from '@tanstack/react-start'
 import * as fontkitPkg from 'fontkit'
 import fs from 'fs/promises'
+import path from 'node:path'; // Import path
 import { PDFDocument, rgb } from 'pdf-lib'
 
+// Fix fontkit import for ESM/CommonJS compatibility
 const fontkit = (fontkitPkg as any).default ?? fontkitPkg
-
 
 interface Opts {
   reviewerName: string
@@ -17,18 +17,21 @@ export const generateCertificate = createServerFn({ method: 'POST' })
   .inputValidator((data: Opts) => data)
   .handler(async ({ data: opts }) => {
     try {
-      // read the font via static import
-      const fontBytes = await fs.readFile(cairoFontPath)
-      // still read background from public
-      const bgBytes = await fs
-        .readFile(new URL('../../public/certificate.jpg', import.meta.url).pathname)
-        .catch(() => null)
+      // 1. Define paths relative to the project root (process.cwd())
+      // In Vercel/Vite, 'public' folders are served at the root
+      const fontPath = path.join(process.cwd(), 'public', 'fonts', 'Cairo-Regular.ttf')
+      const bgPath = path.join(process.cwd(), 'public', 'certificate.jpg')
+
+      // 2. Read files
+      const fontBytes = await fs.readFile(fontPath)
+      const bgBytes = await fs.readFile(bgPath).catch(() => null)
 
       const pdfDoc = await PDFDocument.create()
-
-      // must register fontkit so pdf-lib can embed the custom font :contentReference[oaicite:0]{index=0}
+      
+      // Register fontkit
       pdfDoc.registerFontkit(fontkit as any)
 
+      // Embed Background
       let embeddedImg: any
       if (bgBytes) {
         try {
@@ -48,7 +51,7 @@ export const generateCertificate = createServerFn({ method: 'POST' })
         page.setSize(842, 595)
       }
 
-      // embed the custom font now that it’s bundled
+      // Embed Font
       const customFont = await pdfDoc.embedFont(fontBytes)
 
       const textColor = rgb(0.1, 0.1, 0.1)
@@ -56,6 +59,7 @@ export const generateCertificate = createServerFn({ method: 'POST' })
       let y = height - height * 0.32
 
       const drawCenteredRtl = (text: string, size: number) => {
+        // Enforce RTL directional formatting
         const fixed = `\u202B${text}\u202C`
         const textWidth = customFont.widthOfTextAtSize(fixed, size)
         const x = (width - textWidth) / 2
@@ -79,6 +83,7 @@ export const generateCertificate = createServerFn({ method: 'POST' })
       const pdfDataUri = await pdfDoc.saveAsBase64({ dataUri: true })
       return { success: true as const, pdfDataUri }
     } catch (err) {
+      console.error('Certificate Generation Error:', err) // Helpful for Vercel logs
       const message = err instanceof Error ? err.message : 'Unknown error'
       return { success: false as const, error: message }
     }
