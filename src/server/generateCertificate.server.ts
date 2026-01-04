@@ -1,10 +1,11 @@
 import { createServerFn } from '@tanstack/react-start'
 import * as fontkitPkg from 'fontkit'
-import fs from 'fs/promises'
-import path from 'node:path'; // Import path
 import { PDFDocument, rgb } from 'pdf-lib'
 
-// Fix fontkit import for ESM/CommonJS compatibility
+// 1. Remove the static import and fs
+// import cairoFontPath from '@/assets/fonts/Cairo-Regular.ttf' <-- REMOVE THIS
+// import fs from 'fs/promises' <-- REMOVE THIS
+
 const fontkit = (fontkitPkg as any).default ?? fontkitPkg
 
 interface Opts {
@@ -13,21 +14,33 @@ interface Opts {
   manuscriptId?: string
 }
 
+// Helper to determine the correct base URL
+function getBaseUrl() {
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`
+  }
+  return 'http://localhost:3000' // Fallback for local dev
+}
+
 export const generateCertificate = createServerFn({ method: 'POST' })
   .inputValidator((data: Opts) => data)
   .handler(async ({ data: opts }) => {
     try {
-      // 1. Define paths relative to the project root (process.cwd())
-      // In Vercel/Vite, 'public' folders are served at the root
-      const fontPath = path.join(process.cwd(), 'public', 'fonts', 'Cairo-Regular.ttf')
-      const bgPath = path.join(process.cwd(), 'public', 'certificate.jpg')
+      const baseUrl = getBaseUrl()
 
-      // 2. Read files
-      const fontBytes = await fs.readFile(fontPath)
-      const bgBytes = await fs.readFile(bgPath).catch(() => null)
+      // 2. Fetch assets via HTTP instead of fs.readFile
+      const [fontResponse, bgResponse] = await Promise.all([
+        fetch(`${baseUrl}/fonts/Cairo-Regular.ttf`),
+        fetch(`${baseUrl}/certificate.jpg`)
+      ])
+
+      if (!fontResponse.ok) throw new Error(`Failed to load font: ${fontResponse.statusText}`)
+      
+      const fontBytes = await fontResponse.arrayBuffer()
+      const bgBytes = bgResponse.ok ? await bgResponse.arrayBuffer() : null
 
       const pdfDoc = await PDFDocument.create()
-      
+
       // Register fontkit
       pdfDoc.registerFontkit(fontkit as any)
 
@@ -59,7 +72,6 @@ export const generateCertificate = createServerFn({ method: 'POST' })
       let y = height - height * 0.32
 
       const drawCenteredRtl = (text: string, size: number) => {
-        // Enforce RTL directional formatting
         const fixed = `\u202B${text}\u202C`
         const textWidth = customFont.widthOfTextAtSize(fixed, size)
         const x = (width - textWidth) / 2
@@ -83,7 +95,7 @@ export const generateCertificate = createServerFn({ method: 'POST' })
       const pdfDataUri = await pdfDoc.saveAsBase64({ dataUri: true })
       return { success: true as const, pdfDataUri }
     } catch (err) {
-      console.error('Certificate Generation Error:', err) // Helpful for Vercel logs
+      console.error('Certificate Error:', err)
       const message = err instanceof Error ? err.message : 'Unknown error'
       return { success: false as const, error: message }
     }
