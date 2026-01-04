@@ -1,3 +1,4 @@
+import cairoFontPath from '@/assets/fonts/Cairo-Regular.ttf'
 import { createServerFn } from '@tanstack/react-start'
 import * as fontkitPkg from 'fontkit'
 import fs from 'fs/promises'
@@ -5,7 +6,6 @@ import { PDFDocument, rgb } from 'pdf-lib'
 
 const fontkit = (fontkitPkg as any).default ?? fontkitPkg
 
-import cairoFontPath from '../../assets/fonts/Cairo-Regular.ttf'
 
 interface Opts {
   reviewerName: string
